@@ -56,6 +56,12 @@ public class CatalogActivity extends AppCompatActivity {
         displayDatabaseInfo();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        displayDatabaseInfo();
+    }
+
         /**
      * Temporary helper method to display information in the onscreen TextView about the state of
      * the pets database.
@@ -92,7 +98,7 @@ public class CatalogActivity extends AppCompatActivity {
         values.put(PetContract.PetEntry.COLUMN_PET_NAME, "Toto");
         values.put(PetContract.PetEntry.COLUMN_PET_BREED, "Terrier");
         values.put(PetContract.PetEntry.COLUMN_PET_GENDER, 1);
-        values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, "7");
+        values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, 7);
 
         // Keep track of IDs being created
         long newRowId = db.insert(PetContract.PetEntry.TABLE_NAME, null, values);
