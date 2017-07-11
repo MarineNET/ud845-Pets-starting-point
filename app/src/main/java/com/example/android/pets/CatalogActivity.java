@@ -38,6 +38,8 @@ public class CatalogActivity extends AppCompatActivity {
 
     PetDBHelper mDBHelper = new PetDBHelper(this);
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,21 +69,43 @@ public class CatalogActivity extends AppCompatActivity {
      * the pets database.
      */
     private void displayDatabaseInfo() {
-        // To access our database, we instantiate our subclass of SQLiteOpenHelper
-        // and pass the context, which is the current activity.
-        PetDBHelper mDbHelper = new PetDBHelper(this);
 
         // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        SQLiteDatabase db = mDBHelper.getReadableDatabase();
 
         // Perform this raw SQL query "SELECT * FROM pets"
         // to get a Cursor that contains all rows from the pets table.
-        Cursor cursor = db.rawQuery("SELECT * FROM " + PetContract.PetEntry.TABLE_NAME, null);
+        Cursor cursor = db.query(PetContract.PetEntry.TABLE_NAME, null, null, null, null, null, null);
+
+        TextView displayView = (TextView) findViewById(R.id.text_view_pet);
+
         try {
-            // Display the number of rows in the Cursor (which reflects the number of rows in the
-            // pets table in the database).
-            TextView displayView = (TextView) findViewById(R.id.text_view_pet);
-            displayView.setText("Number of rows in pets database table: " + cursor.getCount());
+            displayView.setText("The pets table contains " + cursor.getCount() + " pets.\n\n");
+            displayView.append(PetContract.PetEntry._ID + " - " +
+                    PetContract.PetEntry.COLUMN_PET_NAME + " - " +
+                    PetContract.PetEntry.COLUMN_PET_BREED + " - " +
+                    PetContract.PetEntry.COLUMN_PET_GENDER + " - " +
+                    PetContract.PetEntry.COLUMN_PET_WEIGHT);
+
+            // Find out the index of each column
+            int idColumnIndex = cursor.getColumnIndex(PetContract.PetEntry._ID);
+            int nameColumnIndex = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_NAME);
+            int breedColumnIndex = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_BREED);
+            int genderColumnIndex = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_GENDER);
+            int weightColumnIndex = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_WEIGHT);
+
+            // Iterate through all the returned rows in the cursor
+            while (cursor.moveToNext()) {
+                int currentId = cursor.getInt(idColumnIndex);
+                String currentName = cursor.getString(nameColumnIndex);
+                String currentBreed = cursor.getString(breedColumnIndex);
+                int currentGender = cursor.getInt(genderColumnIndex);
+                int currentWeight = cursor.getInt(weightColumnIndex);
+
+                displayView.append("\n" + currentId + " - " + currentName + " - " +
+                " - " + currentBreed + " - " + currentGender + " - " + currentWeight);
+            }
+
         } finally {
             // Always close the cursor when you're done reading from it. This releases all its
             // resources and makes it invalid.

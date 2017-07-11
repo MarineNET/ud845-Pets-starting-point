@@ -19,8 +19,6 @@ public class PetDBHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    PetContract mPetContract = new PetContract();
-
     @Override
     public void onCreate(SQLiteDatabase db) {
         String SQL_CREATE_ENTRIES =

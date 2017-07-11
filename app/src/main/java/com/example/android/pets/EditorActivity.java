@@ -139,8 +139,6 @@ public class EditorActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Pet saved with id: " + newRowId, Toast.LENGTH_SHORT).show();
         }
-        
-        Log.v("EditorActivity", "New row ID " + newRowId);
     }
 
     @Override
