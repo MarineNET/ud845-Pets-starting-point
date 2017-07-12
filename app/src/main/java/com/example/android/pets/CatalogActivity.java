@@ -38,8 +38,6 @@ public class CatalogActivity extends AppCompatActivity {
 
     PetDBHelper mDBHelper = new PetDBHelper(this);
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
