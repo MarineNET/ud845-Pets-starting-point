@@ -71,9 +71,26 @@ public class CatalogActivity extends AppCompatActivity {
         // Create and/or open a database to read from it
         SQLiteDatabase db = mDBHelper.getReadableDatabase();
 
+        // Define projection that specifies which columns from the database you will actually
+        // use after this query
+        String[] projection = {
+                PetContract.PetEntry._ID,
+                PetContract.PetEntry.COLUMN_PET_NAME,
+                PetContract.PetEntry.COLUMN_PET_BREED,
+                PetContract.PetEntry.COLUMN_PET_GENDER,
+                PetContract.PetEntry.COLUMN_PET_WEIGHT,
+        };
+
         // Perform this raw SQL query "SELECT * FROM pets"
         // to get a Cursor that contains all rows from the pets table.
-        Cursor cursor = db.query(PetContract.PetEntry.TABLE_NAME, null, null, null, null, null, null);
+        Cursor cursor = db.query(
+                PetContract.PetEntry.TABLE_NAME,    // Table to query
+                projection,                         // Columns to return
+                null,                               // Columns for the WHERE clause
+                null,                               // Values for the WHERE clause
+                null,                               // Don't group the rows
+                null,                               // Don't filter by row groups
+                null);                              // The sort order
 
         TextView displayView = (TextView) findViewById(R.id.text_view_pet);
 
