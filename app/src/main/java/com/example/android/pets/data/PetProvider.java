@@ -137,19 +137,19 @@ public class PetProvider extends ContentProvider {
 
         // Check that the name is not null
         String name = values.getAsString(PetContract.PetEntry.COLUMN_PET_NAME);
-        if (name == null) {
+        if (name.equals("")) {
             throw new IllegalArgumentException("Pet requires a name");
         }
 
         // Check that the gender is either 0, 1, or 2
-        int gender = values.getAsInteger(PetContract.PetEntry.COLUMN_PET_GENDER);
-        if (PetContract.PetEntry.checkGender()) {
+        Integer gender = values.getAsInteger(PetContract.PetEntry.COLUMN_PET_GENDER);
+        if (gender == null || !PetContract.PetEntry.checkGender(gender)) {
             throw new IllegalArgumentException("Pet requires a gender");
         }
 
         // Check that the breed is not null
-        int weight = values.getAsInteger(PetContract.PetEntry.COLUMN_PET_WEIGHT);
-        if (weight == 0) {
+        Integer weight = values.getAsInteger(PetContract.PetEntry.COLUMN_PET_WEIGHT);
+        if (weight != null && weight < 0) {
             throw new IllegalArgumentException("Pet requires weight");
         }
 
