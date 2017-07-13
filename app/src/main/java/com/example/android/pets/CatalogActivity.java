@@ -107,7 +107,7 @@ public class CatalogActivity extends AppCompatActivity {
                 int currentGender = cursor.getInt(genderColumnIndex);
                 int currentWeight = cursor.getInt(weightColumnIndex);
 
-                displayView.append("\n" + currentId + " - " + currentName + " - " +
+                displayView.append("\n" + currentId + " - " + currentName +
                 " - " + currentBreed + " - " + currentGender + " - " + currentWeight);
             }
 
