@@ -9,9 +9,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.example.android.pets.CatalogActivity;
 import com.example.android.pets.EditorActivity;
+
+import static android.R.attr.id;
 
 /**
  * Created by Viktor Khon on 7/11/2017.
@@ -108,22 +111,50 @@ public class PetProvider extends ContentProvider {
         return cursor;
     }
 
-    /**
-     * Returns the MIME type of data for the content URI.
-     */
-    @Override
-    public String getType(Uri uri) {
-        return null;
-    }
 
     /**
      * Insert new data into the provider with the given ContentValues.
      * Uri tells database where we want this information in
      * ContentValues are the actual values that we want to insert into a database
-     * Returns content Uri, telling us exactly where the data was entered in our database
+     * Returns content Uri with ID, telling us exactly where the data was entered in our database
      */
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case PETS:
+                return insertPet(uri, contentValues);
+            default:
+                throw new IllegalArgumentException("Insertion is not supported for " + uri);
+        }
+    }
+
+    /**
+     * Insert a pet into the database with the given content values. Return the new content URI
+     * for that specific row in the database.
+     */
+    private Uri insertPet(Uri uri, ContentValues values) {
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDBHelper.getWritableDatabase();
+
+        // Keep track of IDs being created
+        long newRowId = db.insert(PetContract.PetEntry.TABLE_NAME, null, values);
+        if (id == -1) {
+            Log.e(LOG_TAG, "Failed to insert row for " + uri);
+            return null;
+        }
+
+        // Once we know the ID of the new row in the table,
+        // return the new URI with the ID appended to the end of it
+        return ContentUris.withAppendedId(uri, newRowId);
+    }
+
+    /**
+     * Returns the MIME type of data for the content URI.
+     */
+    @Override
+    public String getType(Uri uri) {
         return null;
     }
 
