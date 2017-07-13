@@ -135,12 +135,30 @@ public class PetProvider extends ContentProvider {
      */
     private Uri insertPet(Uri uri, ContentValues values) {
 
+        // Check that the name is not null
+        String name = values.getAsString(PetContract.PetEntry.COLUMN_PET_NAME);
+        if (name == null) {
+            throw new IllegalArgumentException("Pet requires a name");
+        }
+
+        // Check that the gender is either 0, 1, or 2
+        int gender = values.getAsInteger(PetContract.PetEntry.COLUMN_PET_GENDER);
+        if (PetContract.PetEntry.checkGender()) {
+            throw new IllegalArgumentException("Pet requires a gender");
+        }
+
+        // Check that the breed is not null
+        int weight = values.getAsInteger(PetContract.PetEntry.COLUMN_PET_WEIGHT);
+        if (weight == 0) {
+            throw new IllegalArgumentException("Pet requires weight");
+        }
+
         // Gets the data repository in write mode
         SQLiteDatabase db = mDBHelper.getWritableDatabase();
 
         // Keep track of IDs being created
         long newRowId = db.insert(PetContract.PetEntry.TABLE_NAME, null, values);
-        if (id == -1) {
+        if (newRowId == -1) {
             Log.e(LOG_TAG, "Failed to insert row for " + uri);
             return null;
         }
@@ -148,6 +166,19 @@ public class PetProvider extends ContentProvider {
         // Once we know the ID of the new row in the table,
         // return the new URI with the ID appended to the end of it
         return ContentUris.withAppendedId(uri, newRowId);
+    }
+
+    /**
+     * Updates the data at the given selection and selection arguments, with the new ContentValues.
+     * Uri tells database where we want this information in
+     * ContentValues are the actual values that we want to insert into a database
+     *
+     * Returns an 'int' - the number of rows that were inserted into database
+     */
+    @Override
+    public int update(Uri uri, ContentValues contentValues, String selection,
+                      String[] selectionArgs) {
+        return 0;
     }
 
     /**
@@ -165,19 +196,6 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
-    }
-
-    /**
-     * Updates the data at the given selection and selection arguments, with the new ContentValues.
-     * Uri tells database where we want this information in
-     * ContentValues are the actual values that we want to insert into a database
-     *
-     * Returns an 'int' - the number of rows that were inserted into database
-     */
-    @Override
-    public int update(Uri uri, ContentValues contentValues, String selection,
-                      String[] selectionArgs) {
         return 0;
     }
 }
