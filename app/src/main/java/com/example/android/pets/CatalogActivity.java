@@ -16,6 +16,7 @@
 package com.example.android.pets;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.pets.data.PetContract;
@@ -40,8 +42,6 @@ public class CatalogActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final int PET_LOADER = 0;
-
-
 
     static PetCursorAdapter petAdapter;
 
@@ -63,7 +63,7 @@ public class CatalogActivity extends AppCompatActivity
         });
 
         // Find the ListView which will be populated with the pet data
-        ListView petListView = (ListView) findViewById(R.id.list_view_pet);
+        final ListView petListView = (ListView) findViewById(R.id.list_view_pet);
 
         // Find and set empty view on the ListView, so that it only shows when the list has 0 items.
         View emptyView = findViewById(R.id.empty_view);
@@ -71,6 +71,32 @@ public class CatalogActivity extends AppCompatActivity
 
         petAdapter = new PetCursorAdapter(this, null);
         petListView.setAdapter(petAdapter);
+
+        petListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position,
+                                    long id) {
+                /** The Intent(Context, Class) constructor supplies the app Context and the
+                 *  component a Class object. As such, this intent explicitly starts the
+                 *  EditorActivity class in the app.
+                 *  Basically you create an Intent object with parameters of a current Activity
+                 *  and the activity you want to start, which is EditorActivity.class
+                 */
+                Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+
+                // Create a new Uri object, which has a Content Uri, and append (add) a new id
+                // from the list, once a user clicks on a list item, to create a new path with id
+                // Content Uri in this case: content://com.example.android.pets/pets
+                // withAppendedId: content://com.example.android.pets/pets/2 (example)
+                Uri uri = ContentUris.withAppendedId(PetContract.PetEntry.CONTENT_URI, id);
+
+                // Set the Uri on the data field of the intent
+                intent.setData(uri);
+
+                // Launch the EditorActivity to display the data for the pet that was clicked on
+                startActivity(intent);
+            }
+        });
 
         getLoaderManager().initLoader(PET_LOADER, null, this);
     }

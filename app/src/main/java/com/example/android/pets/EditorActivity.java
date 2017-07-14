@@ -16,6 +16,7 @@
 package com.example.android.pets;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
@@ -74,6 +75,32 @@ public class EditorActivity extends AppCompatActivity {
         mDBHelper = new PetDBHelper(this);
 
         setupSpinner();
+
+        // Returns the intent that started this activity.
+        // EditA is asking CatalogA: "What do you want from me?"
+        // CatalogA answers: "Here is a Uri I want you to work from, make sure you use getIntent()
+        // to know exactly what my intention is for you"
+        // EditA: "Does it have an ID at the end? If not, then I will open a brand new Activity to
+        // add a new pet"
+        // "However, if you are passing me an ID, that means that this pet already exists in the
+        // database, so I assume that you want to make some changes to it."
+        // CatalogA: "That's exactly what I want you to do"
+        Intent intent = getIntent();
+
+        // Retrieves the data that was passed to this intent
+        // Since intent was passed from the CatalogActivity, Uri is returned from that Activity to
+        // this Activity.
+        // CatalogA: "I will be passing you a Uri, make sure you get it using getData()"
+        Uri uri = intent.getData();
+
+        // EditA: "OK, so if I'm getting a new Uri without an ID then I will change Title to "Add
+        // a pet" so a user can add a new pet. In any other case, I assume that a user wants
+        // to edit a new pet
+        if (uri == null) {
+            setTitle("Add a pet");
+        } else {
+            setTitle("Edit pet");
+        }
     }
 
     /**
