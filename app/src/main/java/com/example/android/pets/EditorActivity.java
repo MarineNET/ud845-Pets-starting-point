@@ -143,11 +143,18 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     // Get user input from editor and save new pet into database
+
+    private int weight() {
+        if (mWeightEditText.getText().toString().length() > 0) {
+            return Integer.parseInt(mWeightEditText.getText().toString().trim());
+        } return -1;
+    }
+
     private void insertPet() {
 
         String nameString = mNameEditText.getText().toString().trim();
         String breedString = mBreedEditText.getText().toString().trim();
-        int weightInt = Integer.parseInt(mWeightEditText.getText().toString().trim());
+        int weightInt = weight();
         int genderInt = mGender;
 
         // Create a new map of values, where column names are the keys, followed by a value
