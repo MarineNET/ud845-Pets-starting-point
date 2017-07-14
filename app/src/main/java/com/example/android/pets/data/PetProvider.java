@@ -98,6 +98,9 @@ public class PetProvider extends ContentProvider {
                 // arguments that will fill in the "?". Since we have 1 question mark in the
                 // selection, we have 1 String in the selection arguments' String array.
                 selection = PetContract.PetEntry._ID + "=?";
+                // ContentUris - method to work with Uri ojects
+                // ContentUris.parseId(uri) - Converts the last path segment of Uri to a long
+                // String.valueOf(long l) - Returns the string representation of the long argument
                 selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
 
                 // This will perform a query on the pets table where the _id equals 3 to return a
@@ -108,6 +111,11 @@ public class PetProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
+
+        /** Set notification URI on the Cursor, so we kow what content URI the Cursor was created
+         * for. If the data at this URI changes, then we know we need to update the Cursor.
+         */
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
 
@@ -162,6 +170,9 @@ public class PetProvider extends ContentProvider {
             Log.e(LOG_TAG, "Failed to insert row for " + uri);
             return null;
         }
+
+        // Notify all listeners that the data has changed for the pet content URI
+        getContext().getContentResolver().notifyChange(uri, null);
 
         // Once we know the ID of the new row in the table,
         // return the new URI with the ID appended to the end of it
@@ -236,8 +247,13 @@ public class PetProvider extends ContentProvider {
         // Gets the data repository in write mode
         SQLiteDatabase db = mDBHelper.getWritableDatabase();
 
+        // Notify all listeners that the data has changed for the pet content URI
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        int rowsUpdated = db.update(PetContract.PetEntry.TABLE_NAME, values, selection, selectionArgs);
+
         // Keep track of IDs being created
-        return db.update(PetContract.PetEntry.TABLE_NAME, values, selection, selectionArgs);
+        return rowsUpdated;
     }
 
     /**
@@ -266,16 +282,34 @@ public class PetProvider extends ContentProvider {
         // Get writable database
         SQLiteDatabase database = mDBHelper.getWritableDatabase();
 
+        int rowsDeleted;
+        // Notify all listeners that the data has changed for the pet content URI
+        getContext().getContentResolver().notifyChange(uri, null);
+
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case PETS:
                 // Delete all rows that match the selection and selection args
-                return database.delete(PetContract.PetEntry.TABLE_NAME, selection, selectionArgs);
+                rowsDeleted = database.delete(PetContract.PetEntry.TABLE_NAME,
+                        selection, selectionArgs);
+                // If 1 or more rows were deleted, then notify all listeners that the data at the
+                // given URI has changed
+                if (rowsDeleted != 0) {
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+                return rowsDeleted;
             case PET_ID:
                 // Delete a single row given by the ID in the URI
                 selection = PetContract.PetEntry._ID + "=?";
                 selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
-                return database.delete(PetContract.PetEntry.TABLE_NAME, selection, selectionArgs);
+                rowsDeleted = database.delete(PetContract.PetEntry.TABLE_NAME,
+                        selection, selectionArgs);
+                // If 1 or more rows were deleted, then notify all listeners that the data at the
+                // given URI has changed
+                if (rowsDeleted != 0) {
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+                return rowsDeleted;
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
