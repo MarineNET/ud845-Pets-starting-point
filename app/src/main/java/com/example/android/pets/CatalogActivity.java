@@ -110,7 +110,7 @@ public class CatalogActivity extends AppCompatActivity
         values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, 7);
 
         Uri uri = getContentResolver().insert(PetContract.PetEntry.CONTENT_URI, values);
-        Log.v("CatalogActivity", "Id uri is " + uri);
+        Log.v("CatalogActivity", "Id currentPet is " + uri);
     }
 
     @Override

@@ -16,6 +16,7 @@
 package com.example.android.pets;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -67,7 +68,7 @@ implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final int EXISTING_PET_LOADER = 0;
 
-    Uri uri;
+    Uri currentPet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,12 +99,12 @@ implements LoaderManager.LoaderCallbacks<Cursor>{
         // Since intent was passed from the CatalogActivity, Uri is returned from that Activity to
         // this Activity.
         // CatalogA: "I will be passing you a Uri, make sure you get it using getData()"
-        uri = intent.getData();
+        currentPet = intent.getData();
 
         // EditA: "OK, so if I'm getting a new Uri without an ID then I will change Title to "Add
         // a pet" so a user can add a new pet. In any other case, I assume that a user wants
         // to edit a new pet
-        if (uri == null) {
+        if (currentPet == null) {
             setTitle("Add a pet");
         } else {
             setTitle("Edit pet");
@@ -160,29 +161,57 @@ implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private void savePet() {
 
-        String nameString = mNameEditText.getText().toString().trim();
-        String breedString = mBreedEditText.getText().toString().trim();
-        int weightInt = weight();
-        int genderInt = mGender;
+        if (currentPet == null) {
 
-        // Create a new map of values, where column names are the keys, followed by a value
-        ContentValues values = new ContentValues();
-        values.put(PetContract.PetEntry.COLUMN_PET_NAME, nameString);
-        values.put(PetContract.PetEntry.COLUMN_PET_BREED, breedString);
-        values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, weightInt);
-        values.put(PetContract.PetEntry.COLUMN_PET_GENDER, genderInt);
+            String nameString = mNameEditText.getText().toString().trim();
+            String breedString = mBreedEditText.getText().toString().trim();
+            int weightInt = weight();
+            int genderInt = mGender;
 
-        Uri uri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
+            // Create a new map of values, where column names are the keys, followed by a value
+            ContentValues values = new ContentValues();
+            values.put(PetContract.PetEntry.COLUMN_PET_NAME, nameString);
+            values.put(PetContract.PetEntry.COLUMN_PET_BREED, breedString);
+            values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, weightInt);
+            values.put(PetContract.PetEntry.COLUMN_PET_GENDER, genderInt);
 
-        // Show a toast message depending on whether or not the insertion was successful
-        if (uri == null) {
-            // If the new content URI is null, then there was an error with insertion.
-            Toast.makeText(this, getString(R.string.editor_insert_pet_failed),
-                    Toast.LENGTH_SHORT).show();
+            Uri newPet = getContentResolver().insert(PetEntry.CONTENT_URI, values);
+
+            // Show a toast message depending on whether or not the insertion was successful
+            if (newPet == null) {
+                // If the new content URI is null, then there was an error with insertion.
+                Toast.makeText(this, getString(R.string.editor_insert_pet_failed),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                // Otherwise, the insertion was successful and we can display a toast.
+                Toast.makeText(this, getString(R.string.editor_insert_pet_successful),
+                        Toast.LENGTH_SHORT).show();
+            }
         } else {
-            // Otherwise, the insertion was successful and we can display a toast.
-            Toast.makeText(this, getString(R.string.editor_insert_pet_successful),
-                    Toast.LENGTH_SHORT).show();
+            String nameString = mNameEditText.getText().toString().trim();
+            String breedString = mBreedEditText.getText().toString().trim();
+            int weightInt = weight();
+            int genderInt = mGender;
+
+            // Create a new map of values, where column names are the keys, followed by a value
+            ContentValues values = new ContentValues();
+            values.put(PetContract.PetEntry.COLUMN_PET_NAME, nameString);
+            values.put(PetContract.PetEntry.COLUMN_PET_BREED, breedString);
+            values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, weightInt);
+            values.put(PetContract.PetEntry.COLUMN_PET_GENDER, genderInt);
+
+            int rowsAffected = getContentResolver().update(currentPet, values, null, null);
+
+            // Show a toast message depending on whether or not the insertion was successful
+            if (rowsAffected == 0) {
+                // If the new content URI is null, then there was an error with insertion.
+                Toast.makeText(this, getString(R.string.editor_insert_pet_failed),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                // Otherwise, the insertion was successful and we can display a toast.
+                Toast.makeText(this, getString(R.string.editor_update_pet_successful),
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -229,7 +258,7 @@ implements LoaderManager.LoaderCallbacks<Cursor>{
 
         // This loader will execute the ContentProvider's query method on a background thread
         return new CursorLoader(this,   // Parent activity context
-                uri,         // Query the content URI for the current pet
+                currentPet,         // Query the content URI for the current pet
                 projection,             // Columns to include in the resulting Cursor
                 null,                   // No selection clause
                 null,                   // No selection arguments
