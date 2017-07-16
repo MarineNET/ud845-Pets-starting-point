@@ -156,7 +156,7 @@ implements LoaderManager.LoaderCallbacks<Cursor>{
     private int weight() {
         if (mWeightEditText.getText().toString().length() > 0) {
             return Integer.parseInt(mWeightEditText.getText().toString().trim());
-        } return -1;
+        } return 0;
     }
 
     private void savePet() {
@@ -168,6 +168,11 @@ implements LoaderManager.LoaderCallbacks<Cursor>{
             int weightInt = weight();
             int genderInt = mGender;
 
+            if (currentPet == null && TextUtils.isEmpty(nameString) &&
+                    TextUtils.isEmpty(breedString) && weightInt == 0 &&
+                    genderInt == PetEntry.GENDER_UNKNOWN) {
+                return;
+            }
             // Create a new map of values, where column names are the keys, followed by a value
             ContentValues values = new ContentValues();
             values.put(PetContract.PetEntry.COLUMN_PET_NAME, nameString);
@@ -176,6 +181,7 @@ implements LoaderManager.LoaderCallbacks<Cursor>{
             values.put(PetContract.PetEntry.COLUMN_PET_GENDER, genderInt);
 
             Uri newPet = getContentResolver().insert(PetEntry.CONTENT_URI, values);
+
 
             // Show a toast message depending on whether or not the insertion was successful
             if (newPet == null) {
