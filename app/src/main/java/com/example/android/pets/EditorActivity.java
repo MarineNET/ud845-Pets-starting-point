@@ -16,7 +16,6 @@
 package com.example.android.pets;
 
 import android.app.LoaderManager;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -108,9 +107,8 @@ implements LoaderManager.LoaderCallbacks<Cursor>{
             setTitle("Add a pet");
         } else {
             setTitle("Edit pet");
+            getLoaderManager().initLoader(EXISTING_PET_LOADER, null, this);
         }
-
-        getLoaderManager().initLoader(EXISTING_PET_LOADER, null, this);
     }
 
     /**
@@ -160,7 +158,7 @@ implements LoaderManager.LoaderCallbacks<Cursor>{
         } return -1;
     }
 
-    private void insertPet() {
+    private void savePet() {
 
         String nameString = mNameEditText.getText().toString().trim();
         String breedString = mBreedEditText.getText().toString().trim();
@@ -203,7 +201,7 @@ implements LoaderManager.LoaderCallbacks<Cursor>{
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
                 // Save pet to the database
-                insertPet();
+                savePet();
                 // Exit activity
                 finish();
                 return true;
