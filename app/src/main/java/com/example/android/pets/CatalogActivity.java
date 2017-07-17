@@ -131,7 +131,7 @@ public class CatalogActivity extends AppCompatActivity
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
-                // Do nothing for now
+                deleteAllPets();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -159,5 +159,13 @@ public class CatalogActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
     petAdapter.swapCursor(null);
+    }
+
+    /**
+     * Helper method to delete all pets in the database.
+     */
+    private void deleteAllPets() {
+        int rowsDeleted = getContentResolver().delete(PetContract.PetEntry.CONTENT_URI, null, null);
+        Log.v("CatalogActivity", rowsDeleted + " rows deleted from pet database");
     }
 }
